@@ -1,0 +1,9 @@
+{
+	"name": "task3",
+	"description": "task::3rd level: pdf to browser and add stickers freely",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.x"
+	}
+}
