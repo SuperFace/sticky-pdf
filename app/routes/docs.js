@@ -7,39 +7,63 @@
   Rest = require("./rest");
 
   Docs = (function(_super) {
-    var Sticker, _ref;
+    var Stickers, _ref;
 
     __extends(Docs, _super);
 
-    Sticker = (function(_super1) {
-      __extends(Sticker, _super1);
+    Stickers = (function(_super1) {
+      __extends(Stickers, _super1);
 
-      function Sticker() {
-        _ref = Sticker.__super__.constructor.apply(this, arguments);
+      function Stickers() {
+        _ref = Stickers.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      Sticker.prototype.read = function(read, res) {
+      Stickers.prototype.read = function(read, res) {
         return res.send("sticker is here!");
       };
 
-      Sticker.prototype.create = function(read, res) {
+      Stickers.prototype.create = function(read, res) {
         return res.send("sticker is here!");
       };
 
-      return Sticker;
+      return Stickers;
 
     })(Rest);
 
     function Docs(app, prefix) {
       this.app = app;
       this.prefix = prefix;
-      this.sticker = new Sticker(this.app, "" + this.prefix + "/sticker");
+      this.stickers = new Sticker(this.app, "" + this.prefix + "/stickers");
       Docs.__super__.constructor.call(this, this.app, this.prefix);
     }
 
     Docs.prototype.read = function(req, res) {
-      return res.send("docs::read");
+      var docs;
+
+      console.log("get list of documents");
+      docs = [
+        {
+          entity_id: "h45gm432k",
+          title: "Hello world",
+          entity_id: "34jh5gjh2",
+          title: "Test task, level 3",
+          entity_id: "34jh5gjh3",
+          title: "Test task, level 1",
+          entity_id: "34jh5gjh4",
+          title: "Test task, level 2",
+          entity_id: "34jh5gjh5",
+          title: "Test task, level 4",
+          entity_id: "34jh5gjh6",
+          title: "Test task, level 5",
+          entity_id: "34jh5gjh7",
+          title: "Test task, level 6"
+        }
+      ];
+      console.log("render it");
+      return res.render("docs", {
+        docs: docs
+      });
     };
 
     Docs.prototype.create = function(req, res) {

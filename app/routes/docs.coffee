@@ -2,18 +2,29 @@
 Rest = require "./rest"
 
 class Docs extends Rest
-	class Sticker extends Rest
+	class Stickers extends Rest
 		read: (read, res) ->
 			res.send "sticker is here!"
 		create: (read, res) ->
 			res.send "sticker is here!"
 
 	constructor: (@app, @prefix) ->
-		@sticker = new Sticker @app, "#{@prefix}/sticker"
+		@stickers = new Sticker @app, "#{@prefix}/stickers"
 		super @app, @prefix
 
 	read: (req, res) ->
-		res.send "docs::read"
+		console.log "get list of documents"
+		docs = [
+			entity_id: "h45gm432k", title: "Hello world"
+			entity_id: "34jh5gjh2", title: "Test task, level 3"
+			entity_id: "34jh5gjh3", title: "Test task, level 1"
+			entity_id: "34jh5gjh4", title: "Test task, level 2"
+			entity_id: "34jh5gjh5", title: "Test task, level 4"
+			entity_id: "34jh5gjh6", title: "Test task, level 5"
+			entity_id: "34jh5gjh7", title: "Test task, level 6"
+		]
+		console.log "render it"
+		res.render "docs", docs: docs
 	create: (req, res) ->
 		res.send "docs::create"
 	update: (req, res) ->

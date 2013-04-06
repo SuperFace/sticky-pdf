@@ -1,5 +1,15 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	.content
+		.row
+			h1= Documents
+			for doc in docs
+				.span3
+					img(src="/docs/thumbs/#{doc.entity_id}")
+					p
+						b.centered= doc.title
+
+block extracss
+
+block extrajs
