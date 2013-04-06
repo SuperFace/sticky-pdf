@@ -9,7 +9,7 @@ class Docs extends Rest
 			res.send "sticker is here!"
 
 	constructor: (@app, @prefix) ->
-		@stickers = new Sticker @app, "#{@prefix}/stickers"
+		@stickers = new Stickers @app, "#{@prefix}/stickers"
 		super @app, @prefix
 
 	read: (req, res) ->

@@ -34,7 +34,7 @@
     function Docs(app, prefix) {
       this.app = app;
       this.prefix = prefix;
-      this.stickers = new Sticker(this.app, "" + this.prefix + "/stickers");
+      this.stickers = new Stickers(this.app, "" + this.prefix + "/stickers");
       Docs.__super__.constructor.call(this, this.app, this.prefix);
     }
 
