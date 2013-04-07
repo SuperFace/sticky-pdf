@@ -1,15 +1,25 @@
 extends layout
 
 block content
+	include modal
+	include upload_form
 	.content
-		.row
-			h1= Documents
+		.row.centered
+			h2 Documents
+			.span3.doc-thumb(data-bind="click: uploadDocument")
+				img(src="/images/docs_new.png", width=80, height=80)
+				p
+					em Upload
 			for doc in docs
-				.span3
-					img(src="/docs/thumbs/#{doc.entity_id}")
+				.span3.doc-thumb(data-bind="click: viewDocument('#{doc.entity_id}')")
+					img(src="/docs/thumbs/#{doc.entity_id}", width=80, height=80)
 					p
-						b.centered= doc.title
+						em= doc.title
 
 block extracss
+	link(rel='stylesheet', href='/stylesheets/docs.css')
 
 block extrajs
+	script(src="/models/docs-list.js")
+	:coffeescript
+		ko.applyBindings new DocsListViewModel
