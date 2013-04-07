@@ -12,7 +12,8 @@ block content
 							a(href="#", data-bind="click: activate(#{page})") Page #{page}
 			.span10.doc-view
 				h3.doc-ctrl
-					| #{doc.title} - Page
+					a(href="/docs") Documents
+					|  - #{doc.title} - Page
 					span(data-bind="text: active")
 				for page in pages
 					div(data-bind="if: active() == #{page}, draggable: {condition: dragAllowed, callback: onDrag}, zoomable: true, dblclick: newSticker")
