@@ -1,0 +1,55 @@
+body {
+	overflow: hidden;
+}
+
+.doc-view {
+	/*overflow: hidden;*/
+	/*max-height: 100%;*/
+}
+
+.doc-view img {
+	max-width: none;
+	max-height: none;
+	z-index: 0;
+	cursor: move;
+	zoom: 1.0;
+	position: relative;
+}
+
+.doc-ctrl {
+	position: relative;
+	z-index: 100;
+	transition: opacity 2s;
+	-moz-transition: opacity 2s; /* Firefox 4 */
+	-webkit-transition: opacity 2s; /* Safari and Chrome */
+	-o-transition: opacity 2s; /* Opera */
+}
+
+.drag-blured {
+	opacity: 0.3;
+}
+
+.drag-blured:hover {
+	opacity: 1.0;
+}
+
+.sticker {
+	position: absolute;
+	width: 150px;
+	height: 130px;
+	background-color: #feffcb;
+	z-index: 10;
+	opacity: 0.8;
+	cursor: text;
+	border-radius: 5px;
+	padding: 10px;
+}
+
+.sticker:hover {
+	opacity: 1.0;
+	margin-left: -2px;
+	margin-top: -2px;
+	border: 2px solid #ccc;
+	z-index: 20000;
+}
+

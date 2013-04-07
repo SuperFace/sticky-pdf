@@ -26,4 +26,15 @@ class Rest
 	regid: (method, cb) ->
 		@app[method] "#{@prefix}/:#{@entity}_id", (req, res) => @[cb] req, res
 
+	fail: (res, err, msg) =>
+		console.log err
+		res.send msg
+	condition: (variable, cb) => 
+		(val) =>
+			if val is undefined
+				return variable
+			else
+				variable = val
+				cb()
+
 module.exports = Rest

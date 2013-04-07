@@ -1,0 +1,37 @@
+extends layout
+
+block content
+	#document_id.hide #{doc.entity_id}
+	.content
+		.row
+			.span2.sidebar.doc-ctrl
+				ul.nav.nav-list
+					li.nav-header Pages [#{doc.page_cnt}]
+					for page in pages
+						li(data-bind="attr: {class: liClass(#{page})}")
+							a(href="#", data-bind="click: activate(#{page})") Page #{page}
+			.span10.doc-view
+				h3.doc-ctrl
+					| #{doc.title} - Page
+					span(data-bind="text: active")
+				for page in pages
+					div(data-bind="if: active() == #{page}, draggable: {condition: dragAllowed, callback: onDrag}, zoomable: true, dblclick: newSticker")
+						img(src="/docs/pages/#{doc.entity_id}-#{page}")
+						// ko foreach: stickers
+						div(data-bind="if: page() == $parent.active() && !deleted()")
+							.sticker(data-bind="click: $parent.stickerFocus(entity_id()), attr: {contenteditable: $parent.editable(entity_id()), style: $parent.stickerStyle($data)}, html: text")
+						// /ko
+
+block extracss
+	link(rel='stylesheet', href='/stylesheets/doc.css')
+
+block extrajs
+	script(src="/models/doc.js")
+	script(src="/bindings/draggable.js")
+	script(src="/bindings/zoomable.js")
+	script(src="/bindings/dblclick.js")
+	script
+		stickers = !{JSON.stringify(doc.stickers)}
+	:coffeescript
+		window.docView = new DocViewModel $("#document_id").text(), stickers
+		ko.applyBindings docView

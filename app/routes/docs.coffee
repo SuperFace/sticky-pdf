@@ -1,33 +1,149 @@
 
 Rest = require "./rest"
+
 fs = require "fs"
 exec = require("child_process").exec
 gm = require "gm"
 path = require "path"
+util = require "util"
+
 MongoClient = require("mongodb").MongoClient
 ObjectID = require("mongodb").ObjectID
 
 class Docs extends Rest
 	class Stickers extends Rest
-		read: (read, res) ->
-			res.send "sticker is here!"
-		create: (read, res) ->
-			res.send "sticker is here!"
+		readid: (req, res) ->
+			# res.send "sticker is here!"
+			console.log req.body
+			nonce = req.query.nonce or Date.now()
+			console.log nonce
+			entity_id = req.params.id
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log entity_id
+					docs.findOne
+						entity_id: ObjectID entity_id
+					, (err, item) =>
+						return @fail res, err, "sorry, unable to find document" if err
+						stickers = item.stickers.filter (x) => x.updated > nonce
+						res.send JSON.stringify
+							stickers: stickers
+							nonce: Date.now()
+		createid: (req, res) ->
+			data = JSON.parse req.body.json
+			sticker = 
+				text: data.text
+				x: data.x
+				y: data.y
+				entity_id: ObjectID()
+				page: data.page
+				updated: Date.now()
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log req.params.id
+					docs.findOne
+						entity_id: ObjectID req.params.id
+					, (err, item) =>
+						return @fail res, err, "sorry, unable to find document" if err
+						item.stickers.push sticker
+						docs.save item, =>
+			res.send JSON.stringify sticker
+		updateid: (req, res) ->
+			data = JSON.parse req.body.json
+			console.log data
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log req.params.id
+					docs.findOne
+						"stickers.entity_id": ObjectID req.params.id
+					, (err, item) =>
+						console.log "found doc!"
+						for sticker in item.stickers when "#{sticker.entity_id}" is "#{req.params.id}"
+							console.log "found sticker!"
+							sticker.text = data.text
+							sticker.updated = Date.now()
+							found = sticker
+							break
+						docs.save item, =>
+						res.send JSON.stringify found
+		deleteid: (req, res) ->
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log req.params.id
+					docs.findOne
+						"stickers.entity_id": ObjectID req.params.id
+					, (err, item) =>
+						console.log "found doc!"
+						for sticker in item.stickers when "#{sticker.entity_id}" is "#{req.params.id}"
+							console.log "found sticker!"
+							# sticker.text = data.text
+							sticker.deleted = true
+							sticker.updated = Date.now()
+							found = sticker
+							break
+						# item.stickers = item.stickers.filter (x) => "#{x.entity_id}" isnt "#{req.params.id}"
+						docs.save item, =>
+						res.send JSON.stringify
+							result: "ok"
+
+	class Thumbs extends Rest
+		readid: (req, res) ->
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log req.params.id
+					docs.findOne
+						entity_id: ObjectID req.params.id
+					, (err, item) =>
+						return @fail res, err, "sorry, unable to find document" if err
+						console.log item
+						thumbPath = "#{process.env.PWD}/files/#{item.file_id}.thumb.jpg"
+						fs.stat thumbPath, (err, stats) =>
+							return @fail res, err, "sorry, unable to load thumbnail" if err
+							res.writeHead 200, 
+								"Content-Type": "image/jpg"
+								"Content-Length": stats.size
+							readStream = fs.createReadStream thumbPath
+							util.pump readStream, res
+
+	class Pages extends Rest
+		readid: (req, res) ->
+			MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+				return @fail res, err, "sorry, error occurred while db connecting" if err
+				db.collection "docs", (err, docs) =>
+					return @fail res, err, "sorry, error occurred while collection creating" if err
+					console.log req.params.id
+					entity_id = req.params.id.replace /-[^$]*$/, ""
+					console.log "'#{entity_id}'"
+					page = req.params.id.replace /^[^-]*-/, ""
+					docs.findOne
+						entity_id: ObjectID entity_id
+					, (err, item) =>
+						return @fail res, err, "sorry, unable to find document" if err
+						console.log item
+						thumbPath = "#{process.env.PWD}/files/#{item.file_id}-#{page}.jpg"
+						fs.stat thumbPath, (err, stats) =>
+							return @fail res, err, "sorry, unable to load thumbnail" if err
+							res.writeHead 200, 
+								"Content-Type": "image/jpg"
+								"Content-Length": stats.size
+							readStream = fs.createReadStream thumbPath
+							util.pump readStream, res
 
 	constructor: (@app, @prefix) ->
 		@stickers = new Stickers @app, "#{@prefix}/stickers"
+		@thumbs = new Thumbs @app, "#{@prefix}/thumbs"
+		@pages = new Pages @app, "#{@prefix}/pages"
 		super @app, @prefix
-
-	fail: (res, err, msg) =>
-		console.log err
-		res.send msg
-	condition: (variable, cb) => 
-		(val) =>
-			if val is undefined
-				return variable
-			else
-				variable = val
-				cb()
 
 	read: (req, res) ->
 		console.log "get list of documents"
@@ -47,7 +163,7 @@ class Docs extends Rest
 			return @fail res, err, "sorry, error occurred while db connecting" if err
 			db.collection "docs", (err, docs) =>
 				return @fail res, err, "sorry, error occurred while collection creating" if err
-				docs.find().toArray (err, items) =>
+				docs.find().sort({_id: -1}).toArray (err, items) =>
 					@fail res, err, "sorry, unable to load documents" if err
 					docslist = items
 					res.render "docs", docs: docslist
@@ -114,8 +230,27 @@ class Docs extends Rest
 		res.send "docs::delete"
 
 	readid: (req, res) ->
-		console.log "i am here :)"
-		res.send "docs::readid#{req.params.id}"
+		# console.log "i am here :)"
+		# res.send "docs::readid#{req.params.id}"
+		# doc = 
+		# 	title: "hello world"
+		# 	pages: 3
+		# 	file_id: "h34g543jh5"
+		# 	entity_id: "hgjhg324hj"
+		# 	_id: "jahfkjsdahf"
+		# res.render "docs_specific", doc: doc, pages: [1..doc.pages]
+		MongoClient.connect "mongodb://localhost:27017/stickypdf", (err, db) =>
+			return @fail res, err, "sorry, error occurred while db connecting" if err
+			db.collection "docs", (err, docs) =>
+				return @fail res, err, "sorry, error occurred while collection creating" if err
+				docs.findOne
+					entity_id: ObjectID req.params.id
+				, (err, item) =>
+					return @fail res, err, "sorry, error occurred while retreiving item" if err
+					doc = item
+					doc.stickers = doc.stickers.filter (x) => x.page
+					res.render "docs_specific", doc: doc, pages: [1..doc.page_cnt]
+
 
 	createid: (req, res) ->
 		console.log "i am here :)"
