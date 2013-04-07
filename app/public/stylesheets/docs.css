@@ -1,0 +1,14 @@
+.doc-thumb {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	cursor: pointer;
+	padding-top: 10px;
+}
+
+.doc-thumb:hover {
+	border: 1px solid #eee;
+	margin-left: 19px;
+	margin-right: -1px;
+	margin-top: 14px;
+	margin-bottom: 14px;
+}

@@ -1,0 +1,10 @@
+.modal.hide.fade(data-bind="if: modal.shown")
+	.modal-header
+		button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
+		h3(data-bind="text: modal.header")
+	.modal-body
+		p(data-bind="html: modal.body")
+	.modal-footer
+		a.btn(href="#", data-bind="click: modal.cancel()") Cancel
+		a.btn.btn-primary(href="#", data-bind="click: modal.ok(), text: modal.okTitle")
+
