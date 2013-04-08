@@ -223,8 +223,12 @@
         _results = [];
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           sticker = _ref2[_k];
-          if (!ok[sticker.entity_id]) {
-            _results.push(docView.stickers.push(new StickerViewModel(sticker)));
+          if (!sticker.deleted) {
+            if (!ok[sticker.entity_id]) {
+              _results.push(docView.stickers.push(new StickerViewModel(sticker)));
+            } else {
+              _results.push(void 0);
+            }
           } else {
             _results.push(void 0);
           }

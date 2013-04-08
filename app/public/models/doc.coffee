@@ -144,8 +144,9 @@ stickerWatcher = ->
 					docView.stickers.remove sticker
 					docView.stickers.push new StickerViewModel update
 			for sticker in res.stickers
-				unless ok[sticker.entity_id]
-					docView.stickers.push new StickerViewModel sticker
+				unless sticker.deleted
+					unless ok[sticker.entity_id]
+						docView.stickers.push new StickerViewModel sticker
 
 
 stickerWatcher.entity_id = $("#document_id").text()
